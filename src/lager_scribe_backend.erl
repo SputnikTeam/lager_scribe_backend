@@ -34,7 +34,12 @@ init(Options) ->
         {size, 5},
         {max_overflow, 10}
     ]),
-    {ok, _} = lager_scribe_pool_sup:start_link(ScribeHost, ScribePort, SizeArgs),
+    case lager_scribe_pool_sup:start_link(ScribeHost, ScribePort, SizeArgs) of
+        {ok, _Pid} ->
+            ok;
+        {error, {already_started, _Pid}} ->
+            ok
+    end,
     case validate_loglevel(LevelConfig) of
         false ->
             {error, {fatal, bad_loglevel}};
